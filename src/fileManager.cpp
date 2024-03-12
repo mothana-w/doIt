@@ -1,6 +1,5 @@
 #include "fileManager.h"
 
-
 std::string fileManager::concatenatePath(std::string part1Path, std::string part2Path)
 {
 	char slash = '/';
@@ -72,7 +71,7 @@ fileManager::enPathState fileManager::validateFileName(std::string& fileName)
 	validateFileExtension(fileName);
 
 	for (unsigned short indx = 0; indx < fileName.length(); ++indx) {
-		if (!isalnum(fileName[indx]) && fileName[indx] != '-' && fileName[indx] != '_')
+		if (!isalnum(fileName[indx]) && fileName[indx] != '-' && fileName[indx] != '_' && fileName[indx] != '.')
 			return enPathState::invalidFileName;
 	}
 	return enPathState::noProblems;
@@ -80,12 +79,14 @@ fileManager::enPathState fileManager::validateFileName(std::string& fileName)
 
 fileManager::enPathState fileManager::createFile(std::string& fileName)
 {
-	validateFileName(fileName);
+	if (validateFileName(fileName) == enPathState::invalidFileName)
+		return enPathState::invalidFileName;
+
 	std::string defPath = getDefPath();
 	std::string fullPath = concatenatePath(defPath, fileName);
 	if (isValidDirPath(defPath)) {
 		if (!isValidFilePath(fullPath)) {
-			std::fstream file(fullPath, std::ios::out);
+			std::fstream file(fullPath, std::fstream::out);
 			if (file.is_open()) {
 				file.close();
 				return enPathState::noProblems;
@@ -94,7 +95,11 @@ fileManager::enPathState fileManager::createFile(std::string& fileName)
 		}
 		else{return enPathState::fileAlreadyExists;}
 	}
-	else { return enPathState::dirNotFound; }
+	else { 
+		if (mkdir(getDefPath().c_str()) != 0)
+			return enPathState::dirNotFound; 
+		createFile(fileName);
+	}
 		
 }
 fileManager::enPathState fileManager::deleteFile(std::string& fileName)
@@ -111,7 +116,10 @@ fileManager::enPathState fileManager::deleteFile(std::string& fileName)
 		}
 		else { return enPathState::fileNotFound; }
 	}
-	else { return enPathState::dirNotFound; }
+	else { 
+			if (mkdir(getDefPath().c_str()) != 0)
+				return enPathState::dirNotFound; 
+	}
 }
 fileManager::enPathState fileManager::renameFile(std::string& fileName, std::string& newName) 
 { 
@@ -123,6 +131,8 @@ fileManager::enPathState fileManager::renameFile(std::string& fileName, std::str
 	
 	if (isValidDirPath(defPath)) {
 		if (isValidFilePath(fullOldFilePath)) {
+			if (fileName == newName)
+				return enPathState::noProblems;
 			if (!isValidFilePath(fullNewFilePath)) {
 				if (rename(fullOldFilePath.c_str(), fullNewFilePath.c_str()) == 0)
 					return enPathState::noProblems;
@@ -133,5 +143,8 @@ fileManager::enPathState fileManager::renameFile(std::string& fileName, std::str
 		}
 		else { return enPathState::fileNotFound; }
 	}
-	else { return enPathState::dirNotFound; }
+	else { 
+			if (mkdir(getDefPath().c_str()) != 0)
+				return enPathState::dirNotFound; 
+	}
 } 
