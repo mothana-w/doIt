@@ -71,7 +71,7 @@ fileManager::enPathState fileManager::validateFileName(std::string& fileName)
 	validateFileExtension(fileName);
 
 	for (unsigned short indx = 0; indx < fileName.length(); ++indx) {
-		if (!isalnum(fileName[indx]) && fileName[indx] != '-' && fileName[indx] != '_' && fileName[indx] != '.')
+		if (!isalnum(fileName[indx]) && fileName[indx] != '-' && fileName[indx] != '_' && fileName[indx] != '.' && fileName[indx] != ' ')
 			return enPathState::invalidFileName;
 	}
 	return enPathState::noProblems;
@@ -98,7 +98,7 @@ fileManager::enPathState fileManager::createFile(std::string& fileName)
 	else { 
 		if (mkdir(getDefPath().c_str()) != 0)
 			return enPathState::dirNotFound; 
-		createFile(fileName);
+		return createFile(fileName);
 	}
 		
 }
@@ -117,8 +117,10 @@ fileManager::enPathState fileManager::deleteFile(std::string& fileName)
 		else { return enPathState::fileNotFound; }
 	}
 	else { 
-			if (mkdir(getDefPath().c_str()) != 0)
-				return enPathState::dirNotFound; 
+		if (mkdir(getDefPath().c_str()) != 0)
+			return enPathState::dirNotFound;
+		else
+			return enPathState::noProblems;
 	}
 }
 fileManager::enPathState fileManager::renameFile(std::string& fileName, std::string& newName) 
@@ -144,7 +146,9 @@ fileManager::enPathState fileManager::renameFile(std::string& fileName, std::str
 		else { return enPathState::fileNotFound; }
 	}
 	else { 
-			if (mkdir(getDefPath().c_str()) != 0)
-				return enPathState::dirNotFound; 
+		if (mkdir(getDefPath().c_str()) != 0)
+			return enPathState::dirNotFound; 
+		else
+			return enPathState::noProblems;
 	}
 } 

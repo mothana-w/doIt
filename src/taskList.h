@@ -12,11 +12,10 @@ private:
 	task* head;
 	std::string listName;
 
-	bool isChecked(std::string checkBox);
 	void handleTaskLine(std::string line);
 	void loadList(std::string fullPath);
 	// return nullptr if task node not found.
-	task* getTask(unsigned _taskNo);
+	task* getTask(int _taskNo);
 	void decreaseTaskNumbers(task* postDeletedTask);
 	void increaseTaskNumbers(task* insertedTask);
 	void appendTask(std::string taskLine, bool isChecked);
@@ -32,15 +31,15 @@ public:
 	void displayTasks();
 	void insertTaskFirst(std::string taskLine);
 	// if taskpos 0 or 1 insert first, if greater than counter append.
-	void insertTask(std::string taskLine, unsigned taskPos);
+	void insertTask(std::string taskLine, int taskPos);
 	void appendTask(std::string taskLine);
 
 	bool deleteFirstTask();
-	bool deleteTask(unsigned taskNo);
+	bool deleteTask(int taskNo);
 
 	//return 1 on success and 0 on failure.
-	bool checkTask(unsigned taskNo);
-	bool uncheckTask(unsigned taskNo);
+	bool checkTask(int taskNo);
+	bool uncheckTask(int taskNo);
 
 	~taskList();
 };

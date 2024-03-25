@@ -1,31 +1,26 @@
 #include "taskList.h"
 
-
-bool taskList::isChecked(std::string checkBox)
-{
-	for (int indx = 0; indx < checkBox.length(); ++indx) {
-		if (!isalpha(checkBox[indx])) {
-			if (checkBox[indx] == '[')
-				if (checkBox[indx + 1] == '*')
-					return true;
-		}
-		else
-			return false;
-	}
-	return false;
-}
 void taskList::handleTaskLine(std::string line)
 {
 	std::string checkBox = "";
+	bool isChecked = false;
 	std::string taskTxt = "";
+	std::stringstream lineStream(line);
+	
+	std::getline(lineStream, checkBox, ']');
+	if (checkBox[checkBox.length() - 1] == '*')
+		isChecked = true;
 
-	for (int indx = 0; indx < line.length(); ++indx) {
-		if (indx < 6)
-			checkBox += line[indx];
-		else
-			taskTxt += line[indx];
+	std::getline(lineStream, taskTxt, '\n');
+
+	int indx = 0;;
+	while (taskTxt[indx] == ' ') {
+		
+		taskTxt.erase(taskTxt.begin() + indx);
+		++indx;
 	}
-	appendTask(taskTxt, isChecked(checkBox));
+
+	appendTask(taskTxt, isChecked);
 }
 void taskList::loadList(std::string fullPath)
 {
@@ -41,7 +36,7 @@ void taskList::loadList(std::string fullPath)
 	}
 	else { display::connotOpenFile(fullPath); }
 }
-task* taskList::getTask(unsigned _taskNo)
+task* taskList::getTask(int _taskNo)
 {
 	if (head == nullptr)
 		return nullptr;
@@ -80,7 +75,6 @@ void taskList::increaseTaskNumbers(task* insertedTask)
 		insertedTask = insertedTask->getNextTask();
 	}
 	insertedTask->setTaskNo(insertedTask->getTaskNo() + 1);
-
 }
 
 taskList::taskList(std::string _listName) : head(nullptr), listName(_listName)
@@ -205,10 +199,11 @@ void taskList::insertTaskFirst(std::string taskLine) {
 
 	insertTaskFirst(taskLine, false);
 }
-void taskList::insertTask(std::string taskLine, unsigned taskPos) {
+void taskList::insertTask(std::string taskLine, int taskPos) {
 
-	if (head == nullptr || taskPos <= 1)
+	if (head == nullptr || taskPos <= 1) {
 		insertTaskFirst(taskLine);
+	}
 	else if (taskPos > task::getTaskCounter())
 		appendTask(taskLine);
 	else {
@@ -237,6 +232,7 @@ void taskList::appendTask(std::string taskLine, bool isChecked)
 
 		task* newTask = new task(taskLine, isChecked);
 		temp->setNextTask(newTask);
+
 	}
 }
 void taskList::appendTask(std::string taskLine)
@@ -251,7 +247,7 @@ bool taskList::deleteFirstTask()
 	decreaseTaskNumbers(head);
 	return true;
 }
-bool taskList::deleteTask(unsigned taskNo) {
+bool taskList::deleteTask(int taskNo) {
 
 	if (head == nullptr || head->getNextTask() == nullptr || taskNo == 1)
 		return deleteFirstTask();
@@ -276,7 +272,7 @@ bool taskList::deleteTask(unsigned taskNo) {
 	}
 }
 
-bool taskList::checkTask(unsigned taskNo)
+bool taskList::checkTask(int taskNo)
 {
 	if (taskNo <= task::getTaskCounter()) {
 
@@ -289,7 +285,7 @@ bool taskList::checkTask(unsigned taskNo)
 	 return false;
 
 }
-bool taskList::uncheckTask(unsigned taskNo)
+bool taskList::uncheckTask(int taskNo)
 {
 	if (taskNo <= task::getTaskCounter()) {
 
